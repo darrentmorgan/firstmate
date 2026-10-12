@@ -534,6 +534,31 @@ test_project_argument_that_is_itself_a_worktree_resolves_to_the_primary_checkout
   pass "fm-claude-trust.sh: a project argument that is itself a linked worktree resolves to the primary checkout"
 }
 
+# A primary checkout whose git dir lives elsewhere (git clone/init
+# --separate-git-dir) has no checkout at its common dir's parent, so the
+# project key falls back to the verified primary <project> itself.
+test_separate_git_dir_primary_project_is_trusted() {
+  local case_dir proj wt config out
+  case_dir="$TMP_ROOT/separate-git-dir"
+  proj="$case_dir/project"
+  wt="$case_dir/wt"
+  config="$case_dir/claude-config"
+  mkdir -p "$proj" "$config" "$case_dir/store"
+  git -C "$proj" init -q -b main --separate-git-dir "$case_dir/store/project.git"
+  printf '# project\n' > "$proj/README.md"
+  git -C "$proj" add README.md
+  git -C "$proj" -c user.name='Firstmate Tests' -c user.email='tests@example.invalid' commit -qm initial
+  git -C "$proj" worktree add --quiet -b wt-separate "$wt"
+  out=$(run_trust "$config" "$wt" "$proj")
+  expect_code 0 $? "a worktree of a separate-git-dir primary checkout must be trusted: $out"
+  assert_contains "$out" "trusted (project root): $proj" "the outcome did not name the primary checkout"
+  assert_trust_only_no_import_consent "$config/.claude.json" "$proj" \
+    "the separate-git-dir primary checkout either lost trust or gained unearned import consent"
+  assert_trusted "$config/.claude.json" "$wt" "the worktree entry was not registered"
+  assert_not_trusted "$config/.claude.json" "$case_dir/store" "the git dir's parent was recorded as the project root"
+  pass "fm-claude-trust.sh: a separate-git-dir primary checkout is its own project root"
+}
+
 test_unrelated_store_content_is_preserved() {
   local rec store
   rec=$(make_case preserve)
@@ -910,6 +935,7 @@ test_missing_directory_is_refused
 test_foreign_project_worktree_is_refused
 test_worktree_subdirectory_is_refused
 test_project_argument_that_is_itself_a_worktree_resolves_to_the_primary_checkout
+test_separate_git_dir_primary_project_is_trusted
 test_unrelated_store_content_is_preserved
 test_symlinked_store_to_a_foreign_owned_target_is_refused
 test_symlinked_store_to_an_owned_target_is_accepted

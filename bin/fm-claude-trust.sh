@@ -95,16 +95,17 @@
 # own word: a primary checkout (git dir == common dir), a worktree of an
 # unrelated repo, a subdirectory of a worktree, a plain directory, and a home
 # directory are each refused. Refusal is a non-zero exit, never a warning and
-# never a silent skip. When <project> is itself a linked worktree (a
-# secondmate home spawned from, rather than as, the primary checkout),
-# refusing outright would wedge a relaunch that is otherwise perfectly valid:
-# its own common dir already IS the primary checkout's own git dir (git's
+# never a silent skip. The project key is derived from the shared common dir,
+# whether <project> is the primary checkout or itself a linked worktree (a
+# secondmate home spawned from, rather than as, the primary checkout):
+# that common dir already IS the primary checkout's own git dir (git's
 # git-common-dir answer never changes by which worktree asks), so the
 # checkout is derived structurally from it - its parent directory in the
-# standard non-bare, non-GIT_DIR-overridden layout this script already
-# requires elsewhere - and verified, never assumed: the candidate's own
-# resolved git dir must equal that common dir, the same primary-checkout
-# definition used throughout, or this refuses rather than guess. The
+# standard non-bare, non-GIT_DIR-overridden layout - and verified, never
+# assumed: the candidate's own resolved git dir must identify that common
+# dir. When it does not, a primary <project> whose own git dir identifies the
+# common dir (a separate-git-dir layout) is used as itself; anything else is
+# refused rather than guessed. The
 # consent-gated external-imports flags land on that resolved canonical
 # checkout, never on the linked-worktree argument itself.
 #
@@ -314,25 +315,32 @@ if [ "$MODE" = worktree ]; then
   # primary checkout's own git dir (git's git-common-dir identity never changes
   # by which worktree asks), so the checkout is derived structurally from it -
   # its parent directory in the standard non-bare, non-GIT_DIR-overridden
-  # layout this script already requires elsewhere - and verified, never
-  # assumed: the candidate's own resolved git dir must identify WT_COMMON, the
-  # same primary-checkout definition used above, or this refuses rather than
-  # guess.
+  # layout - and verified, never assumed: the candidate's own resolved git dir
+  # must identify WT_COMMON, the same primary-checkout definition used above.
+  # A primary <project> whose own git dir identifies WT_COMMON is accepted as
+  # itself when that candidate fails (a separate-git-dir layout); otherwise
+  # this refuses rather than guess.
   PROJ_GIT_DIR=$(git -C "$PROJ_REAL" rev-parse --absolute-git-dir 2>/dev/null) || true
   [ -n "$PROJ_GIT_DIR" ] || refuse "project '$PROJ_REAL' has no resolvable git directory"
   PROJ_GIT_DIR=$(real_dir "$PROJ_GIT_DIR") || true
   [ -n "$PROJ_GIT_DIR" ] || refuse "project '$PROJ_REAL' has an unresolvable git directory"
   # pwd -P resolves symlinks but can preserve caller-supplied letter case on
   # macOS. Identity is therefore tested with -ef, never path-text equality.
-  # Config keys are different: use the WORKTREE's common-dir pointer spelling,
-  # not the caller's project spelling, matching Claude's traversal from the pane.
+  # Config keys are different: prefer the WORKTREE's common-dir pointer
+  # spelling, not the caller's project spelling, matching Claude's traversal
+  # from the pane. A primary <project> outside that standard layout (a
+  # separate git dir) is its own verified checkout.
   PROJ_CANON=$(real_dir "$(dirname -- "$WT_COMMON")") || true
-  [ -n "$PROJ_CANON" ] \
-    || refuse "project '$PROJ_REAL' has a primary checkout that could not be resolved"
-  CANON_GIT_DIR=$(git -C "$PROJ_CANON" rev-parse --absolute-git-dir 2>/dev/null) || true
-  CANON_GIT_DIR=$(real_dir "${CANON_GIT_DIR:-}") || true
-  [ -n "$CANON_GIT_DIR" ] && [ "$CANON_GIT_DIR" -ef "$WT_COMMON" ] \
-    || refuse "project '$PROJ_REAL' has a primary checkout that could not be resolved"
+  CANON_GIT_DIR=
+  if [ -n "$PROJ_CANON" ]; then
+    CANON_GIT_DIR=$(git -C "$PROJ_CANON" rev-parse --absolute-git-dir 2>/dev/null) || true
+    CANON_GIT_DIR=$(real_dir "${CANON_GIT_DIR:-}") || true
+  fi
+  if [ -z "$CANON_GIT_DIR" ] || [ ! "$CANON_GIT_DIR" -ef "$WT_COMMON" ]; then
+    [ "$PROJ_GIT_DIR" -ef "$WT_COMMON" ] \
+      || refuse "project '$PROJ_REAL' is a linked worktree whose primary checkout could not be resolved"
+    PROJ_CANON=$PROJ_REAL
+  fi
 elif [ "$MODE" = lab-home ]; then
   LAB_MARKER="$TARGET_REAL/$FM_GATE_LAB_MARKER"
   [ ! -L "$LAB_MARKER" ] || refuse "'$LAB_MARKER' is a symlink; a lab home carries the marker as a regular file"
@@ -591,13 +599,15 @@ process.exit(1);
 NODE
 then
   if [ "$MODE" = worktree ]; then
-    refuse "could not record trust for '$TARGET_REAL' and project '$PROJ_CANON' in '$STORE'"
+    refuse "could not record trust for '$TARGET_KEY' and project '$PROJ_CANON' in '$STORE'"
   else
     refuse "could not record trust for '$TARGET_REAL' in '$STORE'"
   fi
 fi
 
-echo "trusted: $TARGET_REAL"
 if [ "$MODE" = worktree ]; then
+  echo "trusted: $TARGET_KEY"
   echo "trusted (project root): $PROJ_CANON"
+else
+  echo "trusted: $TARGET_REAL"
 fi
