@@ -1,0 +1,22 @@
+## A1 unrelated repo under case alias -> must refuse
+error: refusing to pre-register Claude trust: '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/developer/proj-wt' is not a worktree of project '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/other/repo'
+exit=1
+## A2 case-aliased worktree subdirectory -> must refuse
+error: refusing to pre-register Claude trust: '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/DEVELOPER/proj-wt/sub' is not a worktree root (its root is '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj-wt')
+exit=1
+## A3 primary checkout spelled in other case passed as worktree -> must refuse
+error: refusing to pre-register Claude trust: '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/DEVELOPER/proj' is a primary checkout, not an isolated worktree
+exit=1
+## A4 explicit decline at canonical project key, case-aliased args -> must refuse, no worktree write
+error: project entry for /private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj in /private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/c7/.claude.json already declined external CLAUDE.md imports; refusing to override that consent. To recover, remove hasClaudeMdExternalIncludesApproved and hasClaudeMdExternalIncludesWarningShown from that project entry and approve the imports dialog interactively once
+error: refusing to pre-register Claude trust: could not record trust for '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj-wt' and project '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj' in '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/c7/.claude.json'
+exit=1
+{"projects":{"/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj":{"hasClaudeMdExternalIncludesApproved":false,"hasClaudeMdExternalIncludesWarningShown":true}}}
+## A5 standing import consent carried forward under case alias
+trusted: /private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj-wt
+trusted (project root): /private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj
+exit=0
+{"/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj":{"hasClaudeMdExternalIncludesApproved":true,"hasClaudeMdExternalIncludesWarningShown":true,"hasTrustDialogAccepted":true},"/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj-wt":{"hasTrustDialogAccepted":true,"hasClaudeMdExternalIncludesApproved":true,"hasClaudeMdExternalIncludesWarningShown":true}}
+## S separate-git-dir primary project (review-round fix) -> trusted on project itself
+error: refusing to pre-register Claude trust: task worktree '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/sep/wt' is not an accessible directory
+exit=1

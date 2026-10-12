@@ -1,0 +1,33 @@
+### '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/developer' and '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer' same folder: yes
+
+## Scenario 1: worktree spelled lowercase, project spelled Developer
+--- BASE e0d95ac:
+error: refusing to pre-register Claude trust: '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/developer/proj-wt' is not a worktree root (its root is '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj-wt')
+exit=1
+--- TARGET cb975a4:
+trusted: /private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj-wt
+trusted (project root): /private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj
+exit=0
+store keys:
+{
+ "/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj-wt": {
+  "hasTrustDialogAccepted": true
+ },
+ "/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj": {
+  "hasTrustDialogAccepted": true
+ }
+}
+
+## Scenario 2: worktree spelled Developer, project spelled lowercase (the exact refusal message case)
+--- BASE e0d95ac:
+error: refusing to pre-register Claude trust: '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj-wt' is not a worktree of project '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/developer/proj'
+exit=1
+--- TARGET cb975a4:
+trusted: /private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj-wt
+trusted (project root): /private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj
+exit=0
+store keys:
+[
+  '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj-wt',
+  '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Developer/proj'
+]

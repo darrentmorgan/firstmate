@@ -1,0 +1,1 @@
+not ok - case aliases of the same project must be accepted: error: refusing to pre-register Claude trust: '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-claude-trust.unHlph/case-identity/wt' is not a worktree of project '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-claude-trust.unHlph/case-identity/PROJECT': expected exit 0, got 1

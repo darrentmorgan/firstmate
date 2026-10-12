@@ -1,0 +1,8 @@
+## S separate-git-dir primary project, case-aliased worktree arg -> trusted on project itself
+trusted: /private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Sep/wt
+trusted (project root): /private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Sep/proj
+exit=0
+[
+  '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Sep/wt',
+  '/private/var/folders/f0/d646lbz10tgg5rlzvynpf_rw0000gn/T/fm-case.z7clSS/Sep/proj'
+]
